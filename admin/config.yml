@@ -1,0 +1,19 @@
+backend:
+  name: github
+  repo: asano3333-wq/portfolio
+  branch: main
+
+media_folder: images
+public_folder: /images
+
+collections:
+  - name: photos
+    label: 写真
+    folder: _photos
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: タイトル, name: title, widget: string }
+      - { label: 場所, name: location, widget: string }
+      - { label: カテゴリー, name: category, widget: select, options: [landscape, street, lifestyle, travel] }
+      - { label: 写真, name: image, widget: image }
