@@ -2,7 +2,9 @@ backend:
   name: github
   repo: asano3333-wq/portfolio
   branch: main
-
+  base_url: https://api.github.com
+  auth_endpoint: login/oauth/authorize
+  app_id: 0v23liF1QEKluiEci5FA
  
 media_folder: images
 public_folder: /images
