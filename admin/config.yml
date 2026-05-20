@@ -1,3 +1,5 @@
+locale: ja
+
 backend:
   name: github
   repo: asano3333-wq/portfolio
