@@ -7,6 +7,25 @@
 </head>
 <body>
   <div id="nc-root"></div>
+  <script>
+    window.CMS_MANUAL_INIT = true;
+  </script>
   <script src="https://unpkg.com/netlify-cms@^2.10.192/dist/netlify-cms.js"></script>
+  <script>
+    CMS.init({
+      config: {
+        backend: {
+          name: 'github',
+          repo: 'asano3333-wq/portfolio',
+          branch: 'main',
+          base_url: 'https://github-oauth-proxy.asano3333.workers.dev',
+          auth_endpoint: 'oauth/authorize'
+        },
+        media_folder: 'images',
+        public_folder: '/images',
+        collections: []
+      }
+    });
+  </script>
 </body>
 </html>
