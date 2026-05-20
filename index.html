@@ -592,27 +592,49 @@
   </div>
 
   <script>
+// ============================
+    // 写真データ（CMSから動的取得）
     // ============================
-    // 写真データ（ここを編集）
-    // ============================
-    const photos = [
-      { src: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=900&q=80', title: 'Forest Light', location: 'Nikko, Tochigi', category: 'landscape' },
-      { src: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=900&q=80', title: 'City Dusk', location: 'Utsunomiya', category: 'street' },
-      { src: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=900&q=80', title: 'Golden Ridge', location: 'Oku-Nikko', category: 'landscape' },
-      { src: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=900&q=80', title: 'Afternoon', location: 'Home', category: 'lifestyle' },
-      { src: 'https://images.unsplash.com/photo-1524413840807-0c3cb6fa808d?w=900&q=80', title: 'Quiet Street', location: 'Kyoto', category: 'travel' },
-      { src: 'https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=900&q=80', title: 'Cafe Window', location: 'Utsunomiya', category: 'lifestyle' },
-      { src: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=900&q=80', title: 'Field', location: 'Nasu, Tochigi', category: 'landscape' },
-      { src: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=900&q=80', title: 'Night Walk', location: 'Tokyo', category: 'travel' },
-      { src: 'https://images.unsplash.com/photo-1467803738586-46b7eb7b16a1?w=900&q=80', title: 'Mountain Mist', location: 'Shirakawa-go', category: 'landscape' },
-      { src: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=900&q=80', title: 'Morning Market', location: 'Nishiki, Kyoto', category: 'travel' },
-      { src: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=900&q=80', title: 'Rainy Day', location: 'Utsunomiya', category: 'street' },
-      { src: 'https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=900&q=80', title: 'Lakeside', location: 'Chuzenji, Tochigi', category: 'landscape' },
-    ];
-
-    let filteredPhotos = [...photos];
+    let photos = [];
+    let filteredPhotos = [];
     let currentIndex = 0;
 
+    async function loadPhotos() {
+      try {
+        const res = await fetch('https://api.github.com/repos/asano3333-wq/portfolio/contents/_photos');
+        const files = await res.json();
+        const mdFiles = files.filter(f => f.name.endsWith('.md'));
+
+        const loaded = await Promise.all(mdFiles.map(async file => {
+          const fileRes = await fetch(file.url);
+          const fileData = await fileRes.json();
+          const content = atob(fileData.content.replace(/\n/g, ''));
+
+          const match = content.match(/^---\n([\s\S]*?)\n---/);
+          if (!match) return null;
+
+          const fm = {};
+          match[1].split('\n').forEach(line => {
+            const [key, ...val] = line.split(':');
+            if (key && val.length) fm[key.trim()] = val.join(':').trim();
+          });
+
+          return {
+            src: fm.image || '',
+            title: fm.title || '',
+            location: fm.location || '',
+            category: fm.category || 'lifestyle'
+          };
+        }));
+
+        photos = loaded.filter(Boolean);
+        buildGrid('all');
+      } catch (e) {
+        console.error('写真の読み込みに失敗しました', e);
+      }
+    }
+
+    loadPhotos();
     // ============================
     // マソンリーグリッド生成
     // ============================
