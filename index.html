@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Photography Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f0e8;
+      --bg2: #ede8df;
+      --ink: #2a2520;
+      --ink-light: #8a8078;
+      --warm: #c8b89a;
+      --accent: #7a6a55;
+      --white: #faf7f2;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      -webkit-font-smoothing: antialiased;
+      cursor: none;
+    }
+
+    /* カーソル */
+    .cursor {
+      position: fixed;
+      width: 6px;
+      height: 6px;
+      background: var(--ink);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+    }
+    .cursor-ring.hover { width: 52px; height: 52px; opacity: 0.5; }
+
+    /* ヘッダー */
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 28px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(to bottom, var(--bg) 60%, transparent);
+    }
+
+    .logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 19px;
+      letter-spacing: 0.06em;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    nav { display: flex; gap: 32px; }
+    nav a {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-light);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    nav a:hover, nav a.active { color: var(--ink); }
+
+    /* ヒーロー */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 120px 48px 72px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-eyebrow {
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(52px, 7vw, 88px);
+      line-height: 1.0;
+      letter-spacing: -0.015em;
+      color: var(--ink);
+      margin-bottom: 32px;
+    }
+
+    .hero-title em { font-style: italic; color: var(--accent); }
+
+    .hero-desc {
+      font-size: 13px;
+      line-height: 1.9;
+      color: var(--ink-light);
+      max-width: 320px;
+    }
+
+    .hero-right {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-right img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+
+    .hero-right img.loaded { opacity: 1; }
+
+    .hero-right::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--bg2);
+      z-index: 0;
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 48px;
+      left: 48px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      z-index: 2;
+    }
+
+    .hero-scroll-line {
+      width: 48px;
+      height: 1px;
+      background: var(--warm);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-scroll-line::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: var(--accent);
+      animation: scanLine 2s ease infinite;
+    }
+
+    @keyframes scanLine {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    .hero-scroll span {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--ink-light);
+    }
+
+    /* ギャラリーセクション */
+    .gallery-section {
+      padding: 100px 48px 80px;
+    }
+
+    .gallery-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 36px;
+    }
+
+    .gallery-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 32px;
+      letter-spacing: -0.01em;
+    }
+
+    .gallery-count {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--ink-light);
+    }
+
+    /* フィルター */
+    .filters {
+      display: flex;
+      gap: 3px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 7px 18px;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      border: 1px solid var(--warm);
+      background: transparent;
+      color: var(--ink-light);
+      cursor: none;
+      transition: all 0.25s ease;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      border-radius: 0;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--white);
+    }
+
+    /* マソンリーグリッド */
+    .masonry {
+      columns: 3;
+      column-gap: 12px;
+    }
+
+    .masonry-item {
+      break-inside: avoid;
+      margin-bottom: 12px;
+      position: relative;
+      overflow: hidden;
+      background: var(--bg2);
+      cursor: none;
+      display: block;
+    }
+
+    .masonry-item img {
+      width: 100%;
+      height: auto;
+      display: block;
+      opacity: 0;
+      transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.23,1,0.32,1);
+    }
+
+    .masonry-item img.loaded { opacity: 1; }
+    .masonry-item:hover img { transform: scale(1.03); }
+
+    .masonry-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(42,37,32,0.6) 0%, transparent 55%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .masonry-item:hover .masonry-overlay { opacity: 1; }
+
+    .masonry-info {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 16px;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .masonry-item:hover .masonry-info {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .masonry-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 15px;
+      color: var(--white);
+      font-weight: 300;
+    }
+
+    .masonry-location {
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(250,247,242,0.65);
+      margin-top: 3px;
+    }
+
+    /* About */
+    .about {
+      padding: 100px 48px;
+      background: var(--bg2);
+      display: grid;
+      grid-template-columns: 5fr 4fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .about-text {}
+
+    .about-eyebrow {
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+
+    .about-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(36px, 4vw, 56px);
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      margin-bottom: 28px;
+    }
+
+    .about-heading em { font-style: italic; color: var(--accent); }
+
+    .about-body {
+      font-size: 14px;
+      line-height: 2;
+      color: var(--ink-light);
+      margin-bottom: 36px;
+    }
+
+    .about-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+      transition: gap 0.3s ease;
+      border-bottom: 1px solid var(--warm);
+      padding-bottom: 4px;
+    }
+
+    .about-cta:hover { gap: 22px; }
+
+    .about-image {
+      position: relative;
+      overflow: hidden;
+      background: var(--warm);
+    }
+
+    .about-image img {
+      width: 100%;
+      height: auto;
+      display: block;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .about-image img.loaded { opacity: 1; }
+
+    /* フッター */
+    footer {
+      padding: 36px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--warm);
+    }
+
+    .footer-copy {
+      font-size: 11px;
+      color: var(--ink-light);
+      letter-spacing: 0.04em;
+    }
+
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-light);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--ink); }
+
+    /* ライトボックス */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(20,17,14,0.95);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+
+    .lightbox.open { opacity: 1; pointer-events: all; }
+
+    .lightbox-img {
+      max-width: 86vw;
+      max-height: 86vh;
+      object-fit: contain;
+      opacity: 0;
+      transform: scale(0.97);
+      transition: opacity 0.4s ease 0.05s, transform 0.4s ease 0.05s;
+    }
+
+    .lightbox.open .lightbox-img { opacity: 1; transform: scale(1); }
+
+    .lightbox-close {
+      position: absolute;
+      top: 28px; right: 40px;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(245,240,232,0.45);
+      background: none; border: none;
+      cursor: none;
+      font-family: 'DM Sans', sans-serif;
+      transition: color 0.2s;
+    }
+
+    .lightbox-close:hover { color: var(--bg); }
+
+    .lightbox-nav {
+      position: absolute;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+    }
+
+    .lightbox-nav button {
+      width: 40px; height: 40px;
+      border: 1px solid rgba(200,184,154,0.3);
+      background: none;
+      color: var(--bg);
+      cursor: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .lightbox-nav button:hover {
+      border-color: var(--warm);
+      background: rgba(200,184,154,0.1);
+    }
+
+    /* フェードイン */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 0.9s ease, transform 0.9s ease;
+    }
+
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    /* レスポンシブ */
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; min-height: auto; }
+      .hero-right { height: 55vw; }
+      .hero-left { padding: 120px 28px 60px; }
+      .hero-scroll { left: 28px; bottom: 28px; }
+      .gallery-section { padding: 80px 20px 60px; }
+      .masonry { columns: 2; }
+      .about { grid-template-columns: 1fr; gap: 48px; padding: 80px 28px; }
+      footer { padding: 28px 20px; flex-direction: column; gap: 16px; align-items: flex-start; }
+      header { padding: 20px 24px; }
+      body { cursor: auto; }
+      .cursor, .cursor-ring { display: none; }
+    }
+
+    @media (max-width: 480px) {
+      .masonry { columns: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <header>
+    <a href="#" class="logo">Asano Yuki</a>
+    <nav>
+      <a href="#gallery" class="active">Works</a>
+      <a href="#about">About</a>
+    </nav>
+  </header>
+
+  <!-- ヒーロー -->
+  <section class="hero">
+    <div class="hero-left">
+      <p class="hero-eyebrow fade-in">Photography</p>
+      <h1 class="hero-title fade-in">見えない<br>ものを<br><em>撮る。</em></h1>
+      <p class="hero-desc fade-in">風景、街、旅の途中。<br>日常の光の中にある、一瞬を。</p>
+    </div>
+    <div class="hero-right">
+      <!-- ヒーロー画像：images/hero.jpg に差し替え -->
+      <img src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=1200&q=80" alt="" id="heroImg">
+    </div>
+    <div class="hero-scroll">
+      <div class="hero-scroll-line"></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+  <!-- ギャラリー -->
+  <section class="gallery-section" id="gallery">
+    <div class="gallery-header fade-in">
+      <h2 class="gallery-title">Works</h2>
+      <span class="gallery-count" id="photoCount">— photos</span>
+    </div>
+
+    <div class="filters fade-in">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="landscape">Landscape</button>
+      <button class="filter-btn" data-filter="street">Street</button>
+      <button class="filter-btn" data-filter="lifestyle">Lifestyle</button>
+      <button class="filter-btn" data-filter="travel">Travel</button>
+    </div>
+
+    <div class="masonry" id="photoGrid"></div>
+  </section>
+
+  <!-- About -->
+  <section class="about" id="about">
+    <div class="about-text fade-in">
+      <p class="about-eyebrow">About</p>
+      <h2 class="about-heading">光と影の<br><em>あいだで</em></h2>
+      <p class="about-body">
+        デジタル一眼レフを手に、日常の中の非日常を探しています。<br>
+        栃木・宇都宮を拠点に、風景から街のスナップ、<br>
+        旅先での出会いまで、静かにシャッターを切り続けています。
+      </p>
+      <a href="mailto:your@email.com" class="about-cta">Contact →</a>
+    </div>
+    <div class="about-image fade-in">
+      <!-- プロフィール画像：images/profile.jpg に差し替え -->
+      <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&q=80" alt="Profile" id="profileImg">
+    </div>
+  </section>
+
+  <footer>
+    <p class="footer-copy">© 2025 Asano Yuki</p>
+    <div class="footer-links">
+      <a href="#">Instagram</a>
+      <a href="#">Top ↑</a>
+    </div>
+  </footer>
+
+  <!-- ライトボックス -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightboxClose">Close</button>
+    <img class="lightbox-img" id="lightboxImg" src="" alt="">
+    <div class="lightbox-nav">
+      <button id="lightboxPrev">←</button>
+      <button id="lightboxNext">→</button>
+    </div>
+  </div>
+
+  <script>
+    // ============================
+    // 写真データ（ここを編集）
+    // ============================
+    const photos = [
+      { src: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=900&q=80', title: 'Forest Light', location: 'Nikko, Tochigi', category: 'landscape' },
+      { src: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=900&q=80', title: 'City Dusk', location: 'Utsunomiya', category: 'street' },
+      { src: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=900&q=80', title: 'Golden Ridge', location: 'Oku-Nikko', category: 'landscape' },
+      { src: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=900&q=80', title: 'Afternoon', location: 'Home', category: 'lifestyle' },
+      { src: 'https://images.unsplash.com/photo-1524413840807-0c3cb6fa808d?w=900&q=80', title: 'Quiet Street', location: 'Kyoto', category: 'travel' },
+      { src: 'https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=900&q=80', title: 'Cafe Window', location: 'Utsunomiya', category: 'lifestyle' },
+      { src: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=900&q=80', title: 'Field', location: 'Nasu, Tochigi', category: 'landscape' },
+      { src: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=900&q=80', title: 'Night Walk', location: 'Tokyo', category: 'travel' },
+      { src: 'https://images.unsplash.com/photo-1467803738586-46b7eb7b16a1?w=900&q=80', title: 'Mountain Mist', location: 'Shirakawa-go', category: 'landscape' },
+      { src: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=900&q=80', title: 'Morning Market', location: 'Nishiki, Kyoto', category: 'travel' },
+      { src: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=900&q=80', title: 'Rainy Day', location: 'Utsunomiya', category: 'street' },
+      { src: 'https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=900&q=80', title: 'Lakeside', location: 'Chuzenji, Tochigi', category: 'landscape' },
+    ];
+
+    let filteredPhotos = [...photos];
+    let currentIndex = 0;
+
+    // ============================
+    // マソンリーグリッド生成
+    // ============================
+    function buildGrid(filter) {
+      filteredPhotos = filter === 'all' ? photos : photos.filter(p => p.category === filter);
+      document.getElementById('photoCount').textContent = `${filteredPhotos.length} photos`;
+
+      const grid = document.getElementById('photoGrid');
+      grid.innerHTML = '';
+
+      filteredPhotos.forEach((photo, i) => {
+        const item = document.createElement('div');
+        item.className = 'masonry-item';
+        item.innerHTML = `
+          <img src="${photo.src}" alt="${photo.title}" loading="lazy">
+          <div class="masonry-overlay"></div>
+          <div class="masonry-info">
+            <div class="masonry-title">${photo.title}</div>
+            <div class="masonry-location">${photo.location}</div>
+          </div>
+        `;
+        item.addEventListener('click', () => openLightbox(i));
+        const img = item.querySelector('img');
+        img.onload = () => img.classList.add('loaded');
+        if (img.complete) img.classList.add('loaded');
+        grid.appendChild(item);
+
+        // カーソルホバー登録
+        item.addEventListener('mouseenter', () => cursorRing.classList.add('hover'));
+        item.addEventListener('mouseleave', () => cursorRing.classList.remove('hover'));
+      });
+    }
+
+    buildGrid('all');
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        buildGrid(btn.dataset.filter);
+      });
+    });
+
+    // ============================
+    // ライトボックス
+    // ============================
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+
+    function openLightbox(i) {
+      currentIndex = i;
+      lightboxImg.src = filteredPhotos[i].src;
+      lightbox.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      lightbox.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+    document.getElementById('lightboxPrev').addEventListener('click', () => {
+      currentIndex = (currentIndex - 1 + filteredPhotos.length) % filteredPhotos.length;
+      lightboxImg.src = filteredPhotos[currentIndex].src;
+    });
+    document.getElementById('lightboxNext').addEventListener('click', () => {
+      currentIndex = (currentIndex + 1) % filteredPhotos.length;
+      lightboxImg.src = filteredPhotos[currentIndex].src;
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') document.getElementById('lightboxPrev').click();
+      if (e.key === 'ArrowRight') document.getElementById('lightboxNext').click();
+    });
+
+    // ============================
+    // カスタムカーソル
+    // ============================
+    const cursor = document.getElementById('cursor');
+    const cursorRing = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx + 'px';
+      cursor.style.top = my + 'px';
+    });
+
+    (function animRing() {
+      rx += (mx - rx) * 0.13;
+      ry += (my - ry) * 0.13;
+      cursorRing.style.left = rx + 'px';
+      cursorRing.style.top = ry + 'px';
+      requestAnimationFrame(animRing);
+    })();
+
+    document.querySelectorAll('a, button, .filter-btn').forEach(el => {
+      el.addEventListener('mouseenter', () => cursorRing.classList.add('hover'));
+      el.addEventListener('mouseleave', () => cursorRing.classList.remove('hover'));
+    });
+
+    // ============================
+    // フェードイン
+    // ============================
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.08 });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    setTimeout(() => {
+      document.querySelectorAll('.hero .fade-in').forEach((el, i) => {
+        setTimeout(() => el.classList.add('visible'), i * 150);
+      });
+    }, 200);
+
+    // 画像ロード
+    ['heroImg', 'profileImg'].forEach(id => {
+      const img = document.getElementById(id);
+      if (img) {
+        img.onload = () => img.classList.add('loaded');
+        if (img.complete) img.classList.add('loaded');
+      }
+    });
+  </script>
+</body>
+</html>
